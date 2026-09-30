@@ -10,6 +10,7 @@ const API_BASE_URL = 'http://localhost:8080/api';
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [policies, setPolicies] = useState([]);
+  const [expiringPolicies, setExpiringPolicies] = useState([]);
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,11 +22,13 @@ function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [policiesRes, claimsRes] = await Promise.all([
+      const [policiesRes, expiringPoliciesRes, claimsRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/policies`),
+        axios.get(`${API_BASE_URL}/policies/expiring`),
         axios.get(`${API_BASE_URL}/claims`),
       ]);
       setPolicies(policiesRes.data);
+      setExpiringPolicies(expiringPoliciesRes.data);
       setClaims(claimsRes.data);
       setError(null);
     } catch (err) {
@@ -69,6 +72,7 @@ function App() {
         {currentPage === 'dashboard' && (
           <Dashboard
             policies={policies}
+            expiringPolicies={expiringPolicies}
             claims={claims}
             onRefresh={refreshData}
             apiBase={API_BASE_URL}

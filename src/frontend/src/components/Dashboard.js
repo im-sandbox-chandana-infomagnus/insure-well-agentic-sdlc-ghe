@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/Dashboard.css';
 
-function Dashboard({ policies, claims, onRefresh, apiBase }) {
+function Dashboard({ policies, expiringPolicies, claims, onRefresh, apiBase }) {
   const [selectedPolicyId, setSelectedPolicyId] = useState(policies[0]?.id || null);
+  const [renewalReminderDismissed, setRenewalReminderDismissed] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [formData, setFormData] = useState({
@@ -102,6 +103,37 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
         </button>
       </div>
 
+      {expiringPolicies.length > 0 && !renewalReminderDismissed && (
+        <section className="renewal-reminder" aria-label="Policy renewal reminders" data-testid="renewal-reminder">
+          <div>
+            <h2>Policy renewal reminder</h2>
+            <p>
+              {expiringPolicies.length === 1
+                ? 'This policy expires within 30 days.'
+                : `${expiringPolicies.length} policies expire within 30 days.`}
+            </p>
+            <ul>
+              {expiringPolicies.map(policy => (
+                <li key={policy.id}>
+                  <a href="#policy-card" onClick={() => setSelectedPolicyId(policy.id)}>
+                    {policy.holderName} — {policy.planName} (expires {policy.endDate})
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <button
+            type="button"
+            className="renewal-reminder-dismiss"
+            aria-label="Dismiss renewal reminder"
+            onClick={() => setRenewalReminderDismissed(true)}
+            data-testid="dismiss-renewal-reminder"
+          >
+            ×
+          </button>
+        </section>
+      )}
+
       {selectedPolicy && (
         <>
           <div className="policy-tabs" data-testid="policy-tabs">
@@ -134,7 +166,7 @@ function Dashboard({ policies, claims, onRefresh, apiBase }) {
             ))}
           </div>
 
-          <div className="policy-card" data-testid="policy-card">
+          <div className="policy-card" id="policy-card" data-testid="policy-card">
             <div className="policy-header">
               <div>
                 <p className="policy-plan">{selectedPolicy.planName}</p>
