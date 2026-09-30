@@ -3,6 +3,7 @@ package com.insurewell.controller;
 import com.insurewell.dto.PolicyDTO;
 import com.insurewell.model.Policy;
 import com.insurewell.repository.PolicyRepository;
+import com.insurewell.service.PolicyRenewalReminderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class PolicyController {
 
   @Autowired
   private PolicyRepository policyRepository;
+
+  @Autowired
+  private PolicyRenewalReminderService policyRenewalReminderService;
 
   private PolicyDTO toDTO(Policy policy) {
     return PolicyDTO.builder()
@@ -54,6 +58,15 @@ public class PolicyController {
   @GetMapping
   public ResponseEntity<List<PolicyDTO>> getAllPolicies() {
     List<PolicyDTO> policies = policyRepository.findAllByOrderByCreatedAtAsc()
+      .stream()
+      .map(this::toDTO)
+      .collect(Collectors.toList());
+    return ResponseEntity.ok(policies);
+  }
+
+  @GetMapping("/expiring")
+  public ResponseEntity<List<PolicyDTO>> getExpiringPolicies() {
+    List<PolicyDTO> policies = policyRenewalReminderService.findPoliciesExpiringWithin30Days()
       .stream()
       .map(this::toDTO)
       .collect(Collectors.toList());

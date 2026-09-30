@@ -54,6 +54,7 @@ src/
 | Method | Endpoint                     | Description                  |
 |--------|------------------------------|------------------------------|
 | GET    | `/api/policies`              | List all policies            |
+| GET    | `/api/policies/expiring`     | List active policies expiring within 30 days |
 | POST   | `/api/policies`              | Create a policy              |
 | GET    | `/api/policies/{id}`         | Get a single policy          |
 | PATCH  | `/api/policies/{id}`         | Update a policy              |
@@ -80,7 +81,7 @@ src/
 ## Frontend
 
 **Pages:**
-1. **Dashboard** — View policies, manage policy lifecycle, see recent claims and statistics
+1. **Dashboard** — View policies, manage policy lifecycle, see recent claims and statistics, and follow or dismiss reminders for policies expiring within 30 days
 2. **Claims** — Submit new claims, view and filter claims, update claim status
 
 **Components:**
@@ -151,6 +152,7 @@ The frontend will open on **http://localhost:3000** and automatically connect to
 |---------|-------------------------------|------------------------------------|
 | `GET`   | `/api/health`                 | Health check                       |
 | `GET`   | `/api/policies`               | List all policies                  |
+| `GET`   | `/api/policies/expiring`      | List active policies expiring today through the next 30 days |
 | `POST`  | `/api/policies`               | Create a policy                    |
 | `GET`   | `/api/policies/{id}`          | Get a single policy                |
 | `PATCH` | `/api/policies/{id}`          | Update a policy                    |
@@ -160,6 +162,8 @@ The frontend will open on **http://localhost:3000** and automatically connect to
 | `POST`  | `/api/claims`                 | Submit a new claim (multipart)     |
 | `PATCH` | `/api/claims/{id}/status`     | Update claim status                |
 | `DELETE`| `/api/claims/{id}`            | Delete a claim                     |
+
+The dashboard displays a dismissible reminder when one or more active policies expire within 30 days. Each policy link selects that policy's details.
 
 ### Claim submission payload
 

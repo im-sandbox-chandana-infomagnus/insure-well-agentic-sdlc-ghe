@@ -37,6 +37,38 @@ test.describe('Policy Dashboard', () => {
     await expect(page.getByTestId('stat-total-amount')).toBeVisible();
   });
 
+  test('renewal reminder links to the expiring policy details', async ({ page }) => {
+    await page.route('**/api/policies/expiring', route => route.fulfill({
+      json: [{
+        id: 'POL-2024-002',
+        holderName: 'Maria Garcia',
+        planName: 'InsureWell Essential Care Plan',
+        endDate: '2026-10-10',
+      }],
+    }));
+    await page.reload();
+
+    const reminder = page.getByTestId('renewal-reminder');
+    await expect(reminder).toBeVisible();
+    await reminder.getByRole('link', { name: /Maria Garcia/ }).click();
+    await expect(page.getByTestId('policy-card')).toContainText('POL-2024-002');
+  });
+
+  test('renewal reminder can be dismissed', async ({ page }) => {
+    await page.route('**/api/policies/expiring', route => route.fulfill({
+      json: [{
+        id: 'POL-2024-001',
+        holderName: 'Alex Johnson',
+        planName: 'InsureWell Premium Health Plan',
+        endDate: '2026-10-10',
+      }],
+    }));
+    await page.reload();
+
+    await page.getByTestId('dismiss-renewal-reminder').click();
+    await expect(page.getByTestId('renewal-reminder')).not.toBeVisible();
+  });
+
   test('Add Policy button opens the policy modal', async ({ page }) => {
     await page.getByTestId('add-policy-btn').click();
     await expect(page.getByTestId('policy-modal')).toBeVisible();
